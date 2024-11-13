@@ -1,0 +1,94 @@
+# Dependências
+node_modules/
+/.pnp
+.pnp.js
+
+# Arquivos de compilação
+/build
+/dist
+
+# Arquivos de ambiente
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Sistema operacional
+.DS_Store
+Thumbs.db
+
+# IDEs e editores
+/.idea
+/.vscode
+*.swp
+*.swo
+
+# Expo
+.expo/
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+*.orig.*
+web-build/
+
+# Arquivos temporários
+*.log
+*.tmp
+*.temp
+
+# Banco de dados SQLite
+*.sqlite
+*.sqlite3
+
+# Arquivos de cache
+.cache/
+
+# Arquivos de cobertura de testes
+/coverage
+
+# Arquivos de produção
+/frontend/web-build/
+/backend/dist/
+
+# Arquivos de configuração local
+*.local
+
+# Arquivos de debug do Android Studio
+android/app/debug.keystore
+
+# Arquivos de build do Xcode
+*.pbxuser
+!default.pbxuser
+*.mode1v3
+!default.mode1v3
+*.mode2v3
+!default.mode2v3
+*.perspectivev3
+!default.perspectivev3
+xcuserdata
+*.xccheckout
+*.moved-aside
+DerivedData
+*.hmap
+*.ipa
+*.xcuserstate
+project.xcworkspace
+
+# Arquivos de configuração do CocoaPods
+/ios/Pods/
+
+# Arquivos de build do Android
+/android/app/build/
+/android/build/
+/android/gradle/
+/android/gradlew
+/android/gradlew.bat
+/android/local.properties
