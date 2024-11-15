@@ -1,9 +1,21 @@
 // frontend/src/services/api.ts
-import AsyncStorage from '@react-native-community/async-storage';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const API_URL = 'http://seu-ip-ou-dominio:3000/api';
+const API_URL = 'http://localhost:3000/api';
 
-export const register = async (username: string, password: string) => {
+interface LightStatus {
+  isOn: boolean;
+  intensity: number;
+  naturalLight: number;
+}
+
+interface HistoricalData {
+  timestamp: string;
+  naturalLight: number;
+  intensity: number;
+}
+
+export const register = async (username: string, password: string): Promise<void> => {
   const response = await fetch(`${API_URL}/auth/register`, {
     method: 'POST',
     headers: {
@@ -13,13 +25,12 @@ export const register = async (username: string, password: string) => {
   });
 
   if (!response.ok) {
-    throw new Error('Falha no registro');
+    const errorData = await response.json();
+    throw new Error(errorData.error || 'Falha no registro');
   }
-
-  return response.json();
 };
 
-export const login = async (username: string, password: string) => {
+export const login = async (username: string, password: string): Promise<string> => {
   const response = await fetch(`${API_URL}/auth/login`, {
     method: 'POST',
     headers: {
@@ -37,7 +48,7 @@ export const login = async (username: string, password: string) => {
   return data.token;
 };
 
-export const getLightStatus = async () => {
+export const getLightStatus = async (): Promise<LightStatus> => {
   const token = await AsyncStorage.getItem('token');
   const response = await fetch(`${API_URL}/lights/status`, {
     headers: {
@@ -52,7 +63,7 @@ export const getLightStatus = async () => {
   return response.json();
 };
 
-export const updateLightStatus = async (isOn: boolean) => {
+export const updateLightStatus = async (isOn: boolean, intensity: number): Promise<void> => {
   const token = await AsyncStorage.getItem('token');
   const response = await fetch(`${API_URL}/lights/update`, {
     method: 'POST',
@@ -60,11 +71,24 @@ export const updateLightStatus = async (isOn: boolean) => {
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${token}`,
     },
-    body: JSON.stringify({ isOn }),
+    body: JSON.stringify({ isOn, intensity }),
   });
 
   if (!response.ok) {
     throw new Error('Falha ao atualizar status da luz');
+  }
+};
+
+export const getHistoricalData = async (): Promise<HistoricalData[]> => {
+  const token = await AsyncStorage.getItem('token');
+  const response = await fetch(`${API_URL}/lights/historical`, {
+    headers: {
+      'Authorization': `Bearer ${token}`,
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error('Falha ao obter dados históricos');
   }
 
   return response.json();
