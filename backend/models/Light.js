@@ -1,3 +1,4 @@
+// backend/models/Light.js
 const { db } = require('../config/database');
 
 class Light {

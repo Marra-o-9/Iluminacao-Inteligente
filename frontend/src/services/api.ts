@@ -1,94 +1,95 @@
 // frontend/src/services/api.ts
-import axios from 'axios';
-import * as FileSystem from 'expo-file-system';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const API_URL = 'http://localhost:3000/api';
 
-interface LightPost {
-  id: string;
-  latitude: number;
-  longitude: number;
-  local: string;
+interface LightStatus {
+  isOn: boolean;
+  artificialLight: number;
+  naturalLight: number;
 }
 
-interface Region {
-  name: string;
-  coordinates: { latitude: number; longitude: number }[];
-  count: number;
+interface HistoricalData {
+  timestamp: string;
+  naturalLight: number;
+  intensity: number;
 }
 
-export const readCsvFile = async (): Promise<LightPost[]> => {
-  try {
-    const fileUri = FileSystem.documentDirectory + 'ilume-limpa.csv';
-    const fileContent = await FileSystem.readAsStringAsync(fileUri);
-    const rows = fileContent.split('\n').map(row => row.split(','));
-    const headers = rows[0];
-    const data = rows.slice(1);
-
-    return data.map((row) => ({
-      id: row[headers.indexOf('ID')],
-      latitude: parseFloat(row[headers.indexOf('LAT')]),
-      longitude: parseFloat(row[headers.indexOf('LONG')]),
-      local: row[headers.indexOf('LOCAL')],
-    }));
-  } catch (error) {
-    console.error('Erro ao ler o arquivo CSV:', error);
-    return [];
-  }
-};
-
-export const processLightPosts = (data: LightPost[]): { posts: LightPost[], regions: Region[] } => {
-  const posts = data;
-
-  const regions: Region[] = [
-    {
-      name: 'Centro',
-      coordinates: [
-        { latitude: -23.550520, longitude: -46.633309 },
-        { latitude: -23.548891, longitude: -46.639531 },
-        { latitude: -23.551462, longitude: -46.642450 },
-        { latitude: -23.557152, longitude: -46.639832 },
-        { latitude: -23.557152, longitude: -46.633309 },
-      ],
-      count: 0,
+export const register = async (username: string, password: string): Promise<void> => {
+  const response = await fetch(`${API_URL}/auth/register`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
     },
-    // Add other regions here
-  ];
-
-  posts.forEach((post) => {
-    const region = regions.find((r) => isPointInPolygon(post, r.coordinates));
-    if (region) {
-      region.count++;
-    }
+    body: JSON.stringify({ username, password }),
   });
 
-  return { posts, regions };
-};
-
-const isPointInPolygon = (point: LightPost, polygon: { latitude: number; longitude: number }[]): boolean => {
-  let isInside = false;
-  for (let i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
-    const xi = polygon[i].latitude, yi = polygon[i].longitude;
-    const xj = polygon[j].latitude, yj = polygon[j].longitude;
-    
-    const intersect = ((yi > point.longitude) !== (yj > point.longitude))
-        && (point.latitude < (xj - xi) * (point.longitude - yi) / (yj - yi) + xi);
-    if (intersect) isInside = !isInside;
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.error || 'Falha no registro');
   }
-  return isInside;
 };
 
-export const login = async (username: string, password: string) => {
-  const response = await axios.post(`${API_URL}/auth/login`, { username, password });
-  return response.data;
+export const login = async (username: string, password: string): Promise<string> => {
+  const response = await fetch(`${API_URL}/auth/login`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ username, password }),
+  });
+
+  if (!response.ok) {
+    throw new Error('Falha na autenticação');
+  }
+
+  const data = await response.json();
+  await AsyncStorage.setItem('token', data.token);
+  return data.token;
 };
 
-export const getLightStatus = async () => {
-  const response = await axios.get(`${API_URL}/lights/status`);
-  return response.data;
+export const getLightStatus = async (): Promise<LightStatus> => {
+  const token = await AsyncStorage.getItem('token');
+  const response = await fetch(`${API_URL}/lights/status`, {
+    headers: {
+      'Authorization': `Bearer ${token}`,
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error('Falha ao obter status da luz');
+  }
+
+  return response.json();
 };
 
-export const updateLightStatus = async (isOn: boolean, intensity: number) => {
-  const response = await axios.post(`${API_URL}/lights/update`, { isOn, intensity });
-  return response.data;
+export const updateLightStatus = async (isOn: boolean, intensity: number): Promise<void> => {
+  const token = await AsyncStorage.getItem('token');
+  const response = await fetch(`${API_URL}/lights/update`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`,
+    },
+    body: JSON.stringify({ isOn, intensity }),
+  });
+
+  if (!response.ok) {
+    throw new Error('Falha ao atualizar status da luz');
+  }
+};
+
+export const getHistoricalData = async (): Promise<HistoricalData[]> => {
+  const token = await AsyncStorage.getItem('token');
+  const response = await fetch(`${API_URL}/lights/historical`, {
+    headers: {
+      'Authorization': `Bearer ${token}`,
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error('Falha ao obter dados históricos');
+  }
+
+  return response.json();
 };
