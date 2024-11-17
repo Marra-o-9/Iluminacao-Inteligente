@@ -5,7 +5,7 @@ const API_URL = 'http://localhost:3000/api';
 
 interface LightStatus {
   isOn: boolean;
-  intensity: number;
+  artificialLight: number;
   naturalLight: number;
 }
 

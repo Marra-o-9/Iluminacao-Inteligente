@@ -1,39 +1,52 @@
 // backend/routes/lights.js
 const express = require('express');
-const { db } = require('../config/database');
 const authMiddleware = require('../middleware/auth');
-const Light = require('../models/Light');
-const lightSimulator = require('../utils/lightSimulator');
+const Simulator = require('../utils/simulator');
 
 const router = express.Router();
 
 router.use(authMiddleware);
 
-router.get('/status', async (req, res) => {
+// Rota para obter o status atual da luz
+router.get('/status', (req, res) => {
   try {
-    const status = await Light.getLatestStatus();
-    res.json(status);
+    const lightData = Simulator.generateLightData();
+    res.json(lightData);
   } catch (error) {
-    res.status(500).json({ error: 'Erro ao buscar status da luz' });
+    res.status(500).json({ error: 'Erro ao simular status da luz' });
   }
 });
 
-router.post('/update', async (req, res) => {
+// Rota para simular um ajuste manual (não implementado com IA)
+router.post('/update', (req, res) => {
   const { isOn, intensity } = req.body;
+
+  // Simula o controle manual retornando os dados ajustados
   try {
-    await lightSimulator.manualControl(isOn, intensity);
-    res.json({ message: 'Status da luz atualizado com sucesso' });
+    const naturalLight = Simulator.generateLightData().naturalLight; // Mantém luz natural da simulação
+    const updatedData = {
+      isOn,
+      artificialLight: intensity,
+      naturalLight,
+    };
+    res.json({ message: 'Status atualizado com sucesso', updatedData });
   } catch (error) {
     res.status(500).json({ error: 'Erro ao atualizar status da luz' });
   }
 });
 
-router.get('/historical', async (req, res) => {
+// Rota para obter dados históricos simulados
+router.get('/historical', (req, res) => {
   try {
-    const data = await Light.getHistoricalData();
-    res.json(data);
+    const historicalData = Array.from({ length: 24 }, (_, i) => {
+      const data = Simulator.generateLightData();
+      const timestamp = new Date(Date.now() - i * 3600000).toISOString(); // Horas passadas
+      return { ...data, timestamp };
+    });
+
+    res.json(historicalData.reverse()); // Histórico em ordem cronológica
   } catch (error) {
-    res.status(500).json({ error: 'Erro ao buscar dados históricos' });
+    res.status(500).json({ error: 'Erro ao obter dados históricos simulados' });
   }
 });
 
