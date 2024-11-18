@@ -12,7 +12,7 @@ interface LightStatus {
 interface HistoricalData {
   timestamp: string;
   naturalLight: number;
-  intensity: number;
+  artificialLight: number;
 }
 
 export const register = async (username: string, password: string): Promise<void> => {

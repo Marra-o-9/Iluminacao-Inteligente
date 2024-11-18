@@ -2,7 +2,6 @@
 const express = require('express');
 const authMiddleware = require('../middleware/auth');
 const Simulator = require('../utils/simulator');
-
 const router = express.Router();
 
 router.use(authMiddleware);
@@ -38,15 +37,10 @@ router.post('/update', (req, res) => {
 // Rota para obter dados históricos simulados
 router.get('/historical', (req, res) => {
   try {
-    const historicalData = Array.from({ length: 24 }, (_, i) => {
-      const data = Simulator.generateLightData();
-      const timestamp = new Date(Date.now() - i * 3600000).toISOString(); // Horas passadas
-      return { ...data, timestamp };
-    });
-
-    res.json(historicalData.reverse()); // Histórico em ordem cronológica
+    const historicalData = Simulator.generateHistoricalData();
+    res.json(historicalData);
   } catch (error) {
-    res.status(500).json({ error: 'Erro ao obter dados históricos simulados' });
+    res.status(500).json({ error: 'Erro ao obter dados históricos' });
   }
 });
 

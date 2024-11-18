@@ -4,7 +4,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { NativeBaseProvider, extendTheme } from 'native-base';
 import AppNavigator from './src/navigation/AppNavigator';
 
-// Extend the theme to include custom colors, fonts, etc
+// Crie ou ajuste o tema para evitar influências indesejadas
 const theme = extendTheme({
   colors: {
     primary: {
@@ -19,9 +19,13 @@ const theme = extendTheme({
       800: '#005885',
       900: '#003F5E',
     },
+    background: {
+      light: '#f5f5f5',
+      dark: '#1a202c',
+    },
   },
   config: {
-    initialColorMode: 'dark',
+    initialColorMode: 'light', // Ou "dark", se preferir
   },
 });
 
