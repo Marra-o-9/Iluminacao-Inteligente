@@ -1,3 +1,4 @@
+// frontend/src/screens/HomeScreen.tsx
 import React, { useState, useEffect } from 'react';
 import { Box, VStack, HStack, Text, Switch, Slider, useColorModeValue, Spinner, Icon, Center, ScrollView } from 'native-base';
 import { Dimensions } from 'react-native';
@@ -89,16 +90,24 @@ export default function ModernHomeScreen() {
   }
 
   return (
-    <Box flex={1} bg={bgColor} safeArea>
+    <Box 
+      bg={bgColor}
+      style={{
+        height: '100vh',
+        display: 'flex',
+        flexDirection: 'column',
+        overflow: 'hidden',
+      }}
+    >
       <Header title="Controle de Iluminação" />
-      <ScrollView
-        flex={1}
-        contentContainerStyle={{
-          flexGrow: 1,
-          paddingBottom: 20,
+      <Box
+        style={{
+          flex: 1,
+          overflowY: 'auto',
+          WebkitOverflowScrolling: 'touch'
         }}
       >
-        <VStack space={4} mt={4} px={4}>
+        <VStack space={6} p={4} pb={32}>
           <Box bg={cardBgColor} rounded="lg" p={4} shadow={2}>
             <HStack justifyContent="space-between" alignItems="center">
               <VStack>
@@ -140,7 +149,7 @@ export default function ModernHomeScreen() {
                 datasets: [{ data: lightHistory }],
               }}
               width={screenWidth}
-              height={200}
+              height={180}
               chartConfig={{
                 backgroundGradientFrom: cardBgColor,
                 backgroundGradientTo: cardBgColor,
@@ -161,7 +170,7 @@ export default function ModernHomeScreen() {
                 datasets: [{ data: secondlyHistory }],
               }}
               width={screenWidth}
-              height={200}
+              height={180}
               chartConfig={{
                 backgroundGradientFrom: cardBgColor,
                 backgroundGradientTo: cardBgColor,
@@ -173,7 +182,7 @@ export default function ModernHomeScreen() {
             />
           </Box>
 
-          <Box bg={cardBgColor} rounded="lg" p={4} shadow={2}>
+          <Box bg={cardBgColor} rounded="lg" p={4} shadow={2} mb={4}>
             <Text fontSize="md" color={textColor} mb={2}>Atualização por Minuto</Text>
             <LineChart
               data={{
@@ -181,7 +190,7 @@ export default function ModernHomeScreen() {
                 datasets: [{ data: minutelyHistory }],
               }}
               width={screenWidth}
-              height={200}
+              height={180}
               chartConfig={{
                 backgroundGradientFrom: cardBgColor,
                 backgroundGradientTo: cardBgColor,
@@ -193,7 +202,7 @@ export default function ModernHomeScreen() {
             />
           </Box>
         </VStack>
-      </ScrollView>
+      </Box>
     </Box>
   );
 }
